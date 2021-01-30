@@ -14,20 +14,21 @@ void run()
         "local",
         0,
         bonjour_moderne::service_host {"", 12345},
-        bonjour_moderne::txt_record {{
-            {"key1", "value1"},
-            {"key 2", "value 2"}
-        }}
-    };
+        bonjour_moderne::txt_record {{{"key1", "value1"},
+                                      {"key 2", "value 2"}}}};
 
-    const auto advertised_service_handler = [&advertised](const bonjour_moderne::advertised_service& service,
-                                                          const bool was_added)
-    {
+    const auto advertised_service_handler = [&advertised] (const bonjour_moderne::advertised_service& service,
+                                                           const bool was_added) {
         if (was_added)
         {
             std::cout << "registered\n";
-            try { advertised.set_value(); }
-            catch (const std::future_error&) {}
+            try
+            {
+                advertised.set_value();
+            }
+            catch (const std::future_error&)
+            {
+            }
         }
     };
 
@@ -35,8 +36,7 @@ void run()
     const bonjour_moderne::service_advertiser advertiser {
         advertisable_service,
         advertised_service_handler,
-        nullptr
-    };
+        nullptr};
 
     // then the handler is notified
     advertised.get_future().wait();
@@ -47,41 +47,47 @@ void run()
     const bonjour_moderne::discoverable_service discoverable_service {
         advertisable_service.type,
         advertisable_service.domain,
-        advertisable_service.interface_index
-    };
+        advertisable_service.interface_index};
 
-    const auto discovered_service_handler = [&discovered](const bonjour_moderne::discovered_service& service,
-                                                          const bool was_added,
-                                                          const bool more_coming)
-    {
+    const auto discovered_service_handler = [&discovered] (const bonjour_moderne::discovered_service& service,
+                                                           const bool was_added,
+                                                           const bool more_coming) {
         if (was_added)
         {
             std::cout << "discovered\n";
-            try { discovered.set_value (service); }
-            catch (const std::future_error&) {}
+            try
+            {
+                discovered.set_value (service);
+            }
+            catch (const std::future_error&)
+            {
+            }
         }
     };
 
     const bonjour_moderne::service_browser service_browser {
         discoverable_service,
         discovered_service_handler,
-        nullptr
-    };
+        nullptr};
 
     //==========================================================================
     std::promise<void> resolved;
 
-    const auto resolved_service_handler = [&resolved](const bonjour_moderne::resolved_service& sercice,
-                                                      const bool more_coming)
-    {
+    const auto resolved_service_handler = [&resolved] (const bonjour_moderne::resolved_service& sercice,
+                                                       const bool more_coming) {
         std::cout << "resolved\n";
         assert (sercice.txt_record.num_values() == 2);
         assert (sercice.txt_record.has_value ("key1"));
         assert (sercice.txt_record.has_value ("key 2"));
         assert (sercice.txt_record.get_value ("key1") == "value1");
         assert (sercice.txt_record.get_value ("key 2") == "value 2");
-        try { resolved.set_value (); }
-        catch (const std::future_error&) {}
+        try
+        {
+            resolved.set_value();
+        }
+        catch (const std::future_error&)
+        {
+        }
     };
 
     auto discovered_service {discovered.get_future().get()};
@@ -94,6 +100,6 @@ int main()
 {
     while (true)
         run();
-    
+
     return 0;
 }
