@@ -2,8 +2,6 @@
 #include <bonjour_moderne.h>
 #include <future>
 #include <iostream>
-#include <string_view>
-
 
 void run()
 {
