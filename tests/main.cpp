@@ -133,12 +133,12 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                         REQUIRE (discovered_service_handler_parameters.was_added == true);
                     }
 
+                    auto discovered_service = discovered_service_handler_parameters.service;
+
                     THEN ("the service name exactly matches")
                     {
-                        REQUIRE (discovered_service_handler_parameters.service.name == service_to_advertise.name);
+                        REQUIRE (discovered_service.name == service_to_advertise.name);
                     }
-
-                    const auto discovered_service = discovered_service_handler_parameters.service;
 
                     THEN ("the service type approximately matches")
                     {
