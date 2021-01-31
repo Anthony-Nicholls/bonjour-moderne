@@ -101,30 +101,27 @@ std::string with_leading_underscore (const std::string& str)
 
 namespace bonjour_moderne
 {
-    namespace service
+    const service_hostname service_hostname::auto_resolve {""};
+    const service_port service_port::placeholder {0};
+    const service_domain service_domain::any {""};
+    const service_domain service_domain::local {"local"};
+    const service_interface service_interface::any {kDNSServiceInterfaceIndexAny};
+    const service_interface service_interface::local {kDNSServiceInterfaceIndexLocalOnly};
+    const service_interface service_interface::unicast {kDNSServiceInterfaceIndexUnicast};
+    const service_interface service_interface::p2p {kDNSServiceInterfaceIndexP2P};
+    const service_interface service_interface::ble {kDNSServiceInterfaceIndexBLE};
+
+    service_type::udp::udp (const std::string& indentifier)
+        : value {with_leading_underscore (indentifier) + "._udp"}
     {
-        const hostname hostname::auto_resolve {""};
-        const port port::placeholder {0};
-        const domain domain::any {""};
-        const domain domain::local {"local"};
-        const interface interface::any {kDNSServiceInterfaceIndexAny};
-        const interface interface::local {kDNSServiceInterfaceIndexLocalOnly};
-        const interface interface::unicast {kDNSServiceInterfaceIndexUnicast};
-        const interface interface::p2p {kDNSServiceInterfaceIndexP2P};
-        const interface interface::ble {kDNSServiceInterfaceIndexBLE};
 
-        type::udp::udp (const std::string& indentifier)
-            : value {with_leading_underscore (indentifier) + "._udp"}
-        {
+    }
 
-        }
+    service_type::tcp::tcp (const std::string& indentifier)
+        : value {with_leading_underscore (indentifier) + "._tcp"}
+    {
 
-        type::tcp::tcp (const std::string& indentifier)
-            : value {with_leading_underscore (indentifier) + "._tcp"}
-        {
-
-        }
-    };
+    }
 
     //==============================================================================
     // Advertise a service
@@ -186,7 +183,7 @@ namespace bonjour_moderne
     service_advertiser::~service_advertiser() = default;
 
     //==============================================================================
-    class service::txt_record::impl
+    class service_txt_record::impl
     {
     public:
         impl()
@@ -275,62 +272,62 @@ namespace bonjour_moderne
         TXTRecordRef txt_record_ref {};
     };
 
-    service::txt_record::txt_record()
+    service_txt_record::service_txt_record()
         : pimpl {std::make_unique<impl>()}
     {
     }
 
-    service::txt_record::txt_record (const txt_record& other)
+    service_txt_record::service_txt_record (const service_txt_record& other)
         : pimpl {std::make_unique<impl> (*other.pimpl)}
     {
     }
 
-    service::txt_record::txt_record (const std::unordered_map<std::string, std::string>& values)
-        : txt_record()
+    service_txt_record::service_txt_record (const std::unordered_map<std::string, std::string>& values)
+        : service_txt_record()
     {
         for (const auto& value : values)
             set_value (value.first, value.second);
     }
 
-    service::txt_record::txt_record (const void* data, uint16_t size)
+    service_txt_record::service_txt_record (const void* data, uint16_t size)
         : pimpl {std::make_unique<impl> (data, size)}
     {
     }
 
-    service::txt_record::~txt_record() = default;
+    service_txt_record::~service_txt_record() = default;
 
-    const void* service::txt_record::data() const
+    const void* service_txt_record::data() const
     {
         return pimpl->data();
     }
 
-    uint16_t service::txt_record::size() const
+    uint16_t service_txt_record::size() const
     {
         return pimpl->size();
     }
 
-    bool service::txt_record::has_value (const std::string& key) const
+    bool service_txt_record::has_value (const std::string& key) const
     {
         return pimpl->has_value (key);
     }
 
-    std::string service::txt_record::get_value (const std::string& key) const
+    std::string service_txt_record::get_value (const std::string& key) const
     {
         return pimpl->get_value (key);
     }
 
-    size_t service::txt_record::num_values() const
+    size_t service_txt_record::num_values() const
     {
         return pimpl->num_values();
     }
 
-    void service::txt_record::set_value (const std::string& key,
-                                const std::string& value)
+    void service_txt_record::set_value (const std::string& key,
+                                        const std::string& value)
     {
         pimpl->set_value (key, value);
     }
 
-    void service::txt_record::remove_value (const std::string& key)
+    void service_txt_record::remove_value (const std::string& key)
     {
         pimpl->remove_value (key);
     }

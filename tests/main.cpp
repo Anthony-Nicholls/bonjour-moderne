@@ -206,7 +206,7 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
 
                             THEN ("the service port is a placeholder")
                             {
-                                REQUIRE (resolved_service.host.port == service_port::placeholder);
+                                REQUIRE (resolved_service.host.port.to_uint16() == service_port::placeholder.to_uint16());
                             }
                         }
                     }

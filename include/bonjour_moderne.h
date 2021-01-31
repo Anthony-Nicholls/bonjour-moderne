@@ -10,192 +10,178 @@
 
 namespace bonjour_moderne
 {
-    namespace service
+    //==============================================================================
+    class service_name
     {
-        class name
+    public:
+        explicit service_name (const std::string& name) : value {name} {}
+        bool is_empty() const { return value.empty(); }
+        std::string to_string() const { return value; }
+        const char* to_c_str() const { return value.c_str(); }
+
+    private:
+        const std::string value;
+    };
+
+    inline bool operator==(const service_name& lhs, const service_name& rhs){ return lhs.to_string() == rhs.to_string(); }
+    inline bool operator!=(const service_name& lhs, const service_name& rhs){ return !(lhs == rhs); }
+
+    class service_type
+    {
+    public:
+        class udp
         {
         public:
-            explicit name (const std::string& name) : value {name} {}
-            bool is_empty() const { return value.empty(); }
-            std::string to_string() const { return value; }
-            const char* to_c_str() const { return value.c_str(); }
-
-        private:
-            const std::string value;
-        };
-
-        inline bool operator==(const name& lhs, const name& rhs){ return lhs.to_string() == rhs.to_string(); }
-        inline bool operator!=(const name& lhs, const name& rhs){ return !(lhs == rhs); }
-
-        class type
-        {
-        public:
-            class udp
-            {
-            public:
-                explicit udp (const std::string& indentifier);
-                std::string to_string() const { return value; }
-                
-            private:
-                const std::string value;
-            };
-
-            class tcp
-            {
-            public:
-                explicit tcp (const std::string& indentifier);
-                std::string to_string() const { return value; }
-            private:
-                const std::string value;
-            };
-
-            type (const udp& udp) : value {udp.to_string()} {}
-            type (const tcp& tcp) : value {tcp.to_string()} {}
-            explicit type (const std::string& type) : value {type} {}
-
-            std::string to_string() const { return value; }
-            const char* to_c_str() const { return value.c_str(); }
-
-        private:
-            const std::string value;
-        };
-
-        inline bool operator==(const type& lhs, const type& rhs){ return lhs.to_string() == rhs.to_string(); }
-        inline bool operator!=(const type& lhs, const type& rhs){ return !(lhs == rhs); }
-
-        class hostname
-        {
-        public:
-            static const hostname auto_resolve;
-
-            explicit hostname (const std::string& name) : value {name} {}
-            bool is_empty() const { return value.empty(); }
-            std::string to_string() const { return value; }
-            const char* to_c_str() const { return value.c_str(); }
-
-        private:
-            const std::string value;
-        };
-
-        inline bool operator==(const hostname& lhs, const hostname& rhs){ return lhs.to_string() == rhs.to_string(); }
-        inline bool operator!=(const hostname& lhs, const hostname& rhs){ return !(lhs == rhs); }
-
-        class port
-        {
-        public:
-            static const port placeholder;
-
-            explicit port (uint16_t port) : value {port} {}
-            uint16_t to_uint16() const { return value; }
-
-        private:
-            const uint16_t value;
-        };
-
-        inline bool operator==(const port& lhs, const port& rhs){ return lhs.to_uint16() == rhs.to_uint16(); }
-        inline bool operator!=(const port& lhs, const port& rhs){ return !(lhs == rhs); }
-
-        class host
-        {
-        public:
-            host (port port) : port {port} {}
-            host (hostname name, port port) : name {name}, port {port} {}
-
-            const hostname name {hostname::auto_resolve};
-            const port port;
-        };
-
-        inline bool operator==(const host& lhs, const host& rhs){ return lhs.name == rhs.name && lhs.port == rhs.port; }
-        inline bool operator!=(const host& lhs, const host& rhs){ return !(lhs == rhs); }
-
-        class domain
-        {
-        public:
-            static const domain any;
-            static const domain local;
-
-            explicit domain (const std::string& name) : value {name} {}
-            bool is_empty() const { return value.empty(); }
-            std::string to_string() const { return value; }
-            const char* to_c_str() const { return value.c_str(); }
-
-        private:
-            const std::string value;
-        };
-
-        inline bool operator==(const domain& lhs, const domain& rhs){ return lhs.to_string() == rhs.to_string(); }
-        inline bool operator!=(const domain& lhs, const domain& rhs){ return !(lhs == rhs); }
-
-        class interface
-        {
-        public:
-            static const interface any;
-            static const interface local;
-            static const interface unicast;
-            static const interface p2p;
-            static const interface ble;
-
-            explicit interface (uint32_t interface_index) : value {interface_index} {}
-            uint32_t to_unint32() const { return value; }
-
-        private:
-            uint32_t value;
-        };
-
-        inline bool operator==(const interface& lhs, const interface& rhs){ return lhs.to_unint32() == rhs.to_unint32(); }
-        inline bool operator!=(const interface& lhs, const interface& rhs){ return !(lhs == rhs); }
-
-        class fullname
-        {
-        public:
-            explicit fullname (const std::string& name) : value {name} {}
-            type type() const;
-            domain domain() const;
+            explicit udp (const std::string& indentifier);
             std::string to_string() const { return value; }
 
         private:
             const std::string value;
         };
 
-        inline bool operator==(const fullname& lhs, const fullname& rhs){ return lhs.to_string() == rhs.to_string(); }
-        inline bool operator!=(const fullname& lhs, const fullname& rhs){ return !(lhs == rhs); }
-
-        class txt_record
+        class tcp
         {
         public:
-            txt_record();
-            txt_record (const txt_record& other);
-            txt_record (const std::unordered_map<std::string, std::string>& values);
-            txt_record (const void* data, uint16_t size);
-            ~txt_record();
-
-            const void* data() const;
-            uint16_t size() const;
-
-            bool has_value (const std::string& key) const;
-            std::string get_value (const std::string& key) const;
-            size_t num_values() const;
-
-            void set_value (const std::string& key,
-                            const std::string& value);
-
-            void remove_value (const std::string& key);
-
+            explicit tcp (const std::string& indentifier);
+            std::string to_string() const { return value; }
         private:
-            class impl;
-            std::unique_ptr<impl> pimpl;
+            const std::string value;
         };
-    } // namespace service
 
-    using service_name = service::name;
-    using service_type = service::type;
-    using service_domain = service::domain;
-    using service_fullname = service::fullname;
-    using service_hostname = service::hostname;
-    using service_port = service::port;
-    using service_host = service::host;
-    using service_interface = service::interface;
-    using service_txt_record = service::txt_record;
+        service_type (const udp& udp) : value {udp.to_string()} {}
+        service_type (const tcp& tcp) : value {tcp.to_string()} {}
+        explicit service_type (const std::string& type) : value {type} {}
+
+        std::string to_string() const { return value; }
+        const char* to_c_str() const { return value.c_str(); }
+
+    private:
+        const std::string value;
+    };
+
+    inline bool operator==(const service_type& lhs, const service_type& rhs){ return lhs.to_string() == rhs.to_string(); }
+    inline bool operator!=(const service_type& lhs, const service_type& rhs){ return !(lhs == rhs); }
+
+    class service_hostname
+    {
+    public:
+        static const service_hostname auto_resolve;
+
+        explicit service_hostname (const std::string& name) : value {name} {}
+        bool is_empty() const { return value.empty(); }
+        std::string to_string() const { return value; }
+        const char* to_c_str() const { return value.c_str(); }
+
+    private:
+        const std::string value;
+    };
+
+    inline bool operator==(const service_hostname& lhs, const service_hostname& rhs){ return lhs.to_string() == rhs.to_string(); }
+    inline bool operator!=(const service_hostname& lhs, const service_hostname& rhs){ return !(lhs == rhs); }
+
+    class service_port
+    {
+    public:
+        static const service_port placeholder;
+
+        explicit service_port (uint16_t port) : value {port} {}
+        uint16_t to_uint16() const { return value; }
+
+    private:
+        const uint16_t value;
+    };
+
+    inline bool operator==(const service_port& lhs, const service_port& rhs){ return lhs.to_uint16() == rhs.to_uint16(); }
+    inline bool operator!=(const service_port& lhs, const service_port& rhs){ return !(lhs == rhs); }
+
+    class service_host
+    {
+    public:
+        service_host (service_port port) : port {port} {}
+        service_host (service_hostname name, service_port port) : name {name}, port {port} {}
+
+        const service_hostname name {service_hostname::auto_resolve};
+        const service_port port;
+    };
+
+    inline bool operator==(const service_host& lhs, const service_host& rhs){ return lhs.name == rhs.name && lhs.port == rhs.port; }
+    inline bool operator!=(const service_host& lhs, const service_host& rhs){ return !(lhs == rhs); }
+
+    class service_domain
+    {
+    public:
+        static const service_domain any;
+        static const service_domain local;
+
+        explicit service_domain (const std::string& name) : value {name} {}
+        bool is_empty() const { return value.empty(); }
+        std::string to_string() const { return value; }
+        const char* to_c_str() const { return value.c_str(); }
+
+    private:
+        const std::string value;
+    };
+
+    inline bool operator==(const service_domain& lhs, const service_domain& rhs){ return lhs.to_string() == rhs.to_string(); }
+    inline bool operator!=(const service_domain& lhs, const service_domain& rhs){ return !(lhs == rhs); }
+
+    class service_interface
+    {
+    public:
+        static const service_interface any;
+        static const service_interface local;
+        static const service_interface unicast;
+        static const service_interface p2p;
+        static const service_interface ble;
+
+        explicit service_interface (uint32_t interface_index) : value {interface_index} {}
+        uint32_t to_unint32() const { return value; }
+
+    private:
+        uint32_t value;
+    };
+
+    inline bool operator==(const service_interface& lhs, const service_interface& rhs){ return lhs.to_unint32() == rhs.to_unint32(); }
+    inline bool operator!=(const service_interface& lhs, const service_interface& rhs){ return !(lhs == rhs); }
+
+    class service_fullname
+    {
+    public:
+        explicit service_fullname (const std::string& name) : value {name} {}
+        std::string to_string() const { return value; }
+
+    private:
+        const std::string value;
+    };
+
+    inline bool operator==(const service_fullname& lhs, const service_fullname& rhs){ return lhs.to_string() == rhs.to_string(); }
+    inline bool operator!=(const service_fullname& lhs, const service_fullname& rhs){ return !(lhs == rhs); }
+
+    class service_txt_record
+    {
+    public:
+        service_txt_record();
+        service_txt_record (const service_txt_record& other);
+        service_txt_record (const std::unordered_map<std::string, std::string>& values);
+        service_txt_record (const void* data, uint16_t size);
+        ~service_txt_record();
+
+        const void* data() const;
+        uint16_t size() const;
+
+        bool has_value (const std::string& key) const;
+        std::string get_value (const std::string& key) const;
+        size_t num_values() const;
+
+        void set_value (const std::string& key,
+                        const std::string& value);
+
+        void remove_value (const std::string& key);
+
+    private:
+        class impl;
+        std::unique_ptr<impl> pimpl;
+    };
 
     //==============================================================================
     struct advertisable_service
