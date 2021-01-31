@@ -15,7 +15,7 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
         {
             service_name {"Test Service"},
             service_type::udp {"test"},
-            service_port::placeholder,
+            service_port {9000},
             service_domain::local,
             service_interface::local
         };
@@ -152,7 +152,6 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
 
                     GIVEN ("the discovered service")
                     {
-                        auto discovered_service {discovered_service_handler_parameters.service};
 
                         WHEN ("the service is resolved")
                         {
@@ -204,9 +203,9 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                                 REQUIRE (resolved_service.host.name.to_string().empty() == false);
                             }
 
-                            THEN ("the service port is a placeholder")
+                            THEN ("the service port is 9000")
                             {
-                                REQUIRE (resolved_service.host.port.to_uint16() == service_port::placeholder.to_uint16());
+                                REQUIRE (resolved_service.host.port == service_port {9000});
                             }
                         }
                     }
