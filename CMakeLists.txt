@@ -21,6 +21,8 @@ PUBLIC
     cxx_std_14
 )
 
+add_subdirectory(lib/Catch2)
+
 add_executable(bonjour-moderne-tests)
 
 target_sources(bonjour-moderne-tests
@@ -31,4 +33,5 @@ PRIVATE
 target_link_libraries(bonjour-moderne-tests
 PRIVATE
     bonjour-moderne
+    Catch2::Catch2WithMain
 )

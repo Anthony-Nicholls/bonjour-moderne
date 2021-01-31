@@ -86,6 +86,19 @@ private:
     std::shared_ptr<service> shared_service;
 };
 
+bool has_leading_underscore (const std::string& str)
+{
+    return str.rfind ("_", 0) == 0;
+}
+
+std::string with_leading_underscore (const std::string& str)
+{
+    if (has_leading_underscore (str))
+        return str;
+
+    return "_" + str;
+}
+
 namespace bonjour_moderne
 {
     //==============================================================================
@@ -103,7 +116,7 @@ namespace bonjour_moderne
         {
             DNSServiceRegister (&shared_dns_service.get_ref(),
                                 kDNSServiceFlagsShareConnection,
-                                service.interface_index,
+                                service.interface,
                                 service.name.empty() ? nullptr : service.name.c_str(),
                                 service.type.c_str(),
                                 service.domain.empty() ? nullptr : service.domain.c_str(),
@@ -313,7 +326,7 @@ namespace bonjour_moderne
         {
             DNSServiceBrowse (&shared_dns_service.get_ref(),
                               kDNSServiceFlagsShareConnection,
-                              service.interface_index,
+                              service.interface,
                               service.type.c_str(),
                               service.domain.empty() ? nullptr : service.domain.c_str(),
                               &dns_service_browse_reply,
@@ -370,7 +383,7 @@ namespace bonjour_moderne
         {
             DNSServiceResolve (&shared_dns_service.get_ref(),
                                kDNSServiceFlagsShareConnection,
-                               service.interface_index,
+                               service.interface,
                                service.name.c_str(),
                                service.type.c_str(),
                                service.domain.c_str(),
@@ -408,11 +421,11 @@ namespace bonjour_moderne
     discovered_service::discovered_service (const std::string& name,
                                             const std::string& type,
                                             const std::string& domain,
-                                            const uint32_t interface_index)
+                                            const uint32_t interface)
         : name {name}
         , type {type}
         , domain {domain}
-        , interface_index {interface_index}
+        , interface {interface}
     {
     }
 
@@ -420,7 +433,7 @@ namespace bonjour_moderne
         : name {other.name}
         , type {other.type}
         , domain {other.domain}
-        , interface_index {other.interface_index}
+        , interface {other.interface}
     {
     }
 
@@ -433,6 +446,27 @@ namespace bonjour_moderne
     }
 
     //==============================================================================
+    namespace interface
+    {
+        constexpr uint32_t any {kDNSServiceInterfaceIndexAny};
+        constexpr uint32_t local {kDNSServiceInterfaceIndexLocalOnly};
+        constexpr uint32_t unicast {kDNSServiceInterfaceIndexUnicast};
+        constexpr uint32_t p2p {kDNSServiceInterfaceIndexP2P};
+        constexpr uint32_t ble {kDNSServiceInterfaceIndexBLE};
+    } // namespace interface
+
+    //==========================================================================
+    std::string tcp_service_type (const std::string& identifier)
+    {
+        return with_leading_underscore (identifier) + "._tcp";
+    }
+
+    std::string udp_service_type (const std::string& identifier)
+    {
+        return with_leading_underscore (identifier) + "._udp";
+    }
+
+    //==========================================================================
     uint32_t daemon_api_version()
     {
         uint32_t api_version {0};
