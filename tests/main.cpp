@@ -13,15 +13,16 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
     {
         const advertisable_service service_to_advertise
         {
-            "Test Service",
-            udp_service_type ("test"),
-            domain::local,
-            interface::local
+            service_name {"Test Service"},
+            service_type::udp {"test"},
+            service_port::placeholder,
+            service_domain::local,
+            service_interface::local
         };
 
         struct advertised_service_handler_parameters
         {
-            const advertised_service service {};
+            const advertised_service service;
             const bool was_added {};
         };
 
@@ -44,37 +45,38 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
             const service_advertiser service_advertiser
             {
                 service_to_advertise,
-                advertised_service_handler,
-                nullptr
+                advertised_service_handler
             };
 
-            auto advertised_handler_parameters_future {advertised_service_handler_promise.get_future()};
+            auto advertised_service_handler_parameters_future {advertised_service_handler_promise.get_future()};
 
             THEN ("the handler is notified in <= one second")
             {
-                REQUIRE (advertised_handler_parameters_future.wait_for (1s) == std::future_status::ready);
+                REQUIRE (advertised_service_handler_parameters_future.wait_for (1s) == std::future_status::ready);
             }
 
-            auto advertised_handler_parameters {advertised_handler_parameters_future.get()};
+            auto advertised_service_handler_parameters {advertised_service_handler_parameters_future.get()};
 
             THEN ("the was_added parameter in the handler is true")
             {
-                REQUIRE (advertised_handler_parameters.was_added == true);
+                REQUIRE (advertised_service_handler_parameters.was_added == true);
             }
+
+            const auto advertised_service = advertised_service_handler_parameters.service;
 
             THEN ("the advertised name exactly matches")
             {
-                REQUIRE (advertised_handler_parameters.service.name == service_to_advertise.name);
+                REQUIRE (advertised_service.name == service_to_advertise.name);
             }
 
             THEN ("the advertised type approximately matches")
             {
-                REQUIRE (advertised_handler_parameters.service.type.rfind (service_to_advertise.type, 0) == 0);
+                REQUIRE (advertised_service.type.to_string().rfind (service_to_advertise.type.to_string(), 0) == 0);
             }
 
             THEN ("the advertised domain approximately matches")
             {
-                REQUIRE (advertised_handler_parameters.service.domain.rfind (service_to_advertise.domain, 0) == 0);
+                REQUIRE (advertised_service.domain.to_string().rfind (service_to_advertise.domain.to_string(), 0) == 0);
             }
 
             GIVEN ("a matching service to discover")
@@ -114,8 +116,7 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                     service_browser service_browser
                     {
                         service_to_discover,
-                        discovered_service_handler,
-                        nullptr
+                        discovered_service_handler
                     };
 
                     auto discovered_service_handler_parameters_future {discovered_service_handler_promise.get_future()};
@@ -137,14 +138,16 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                         REQUIRE (discovered_service_handler_parameters.service.name == service_to_advertise.name);
                     }
 
+                    const auto discovered_service = discovered_service_handler_parameters.service;
+
                     THEN ("the service type approximately matches")
                     {
-                        REQUIRE (discovered_service_handler_parameters.service.type.rfind (service_to_advertise.type, 0) == 0);
+                        REQUIRE (discovered_service.type.to_string().rfind (service_to_advertise.type.to_string(), 0) == 0);
                     }
 
                     THEN ("the service domain approximately matches")
                     {
-                        REQUIRE (discovered_service_handler_parameters.service.domain.rfind (service_to_advertise.domain, 0) == 0);
+                        REQUIRE (discovered_service.domain.to_string().rfind (service_to_advertise.domain.to_string(), 0) == 0);
                     }
 
                     GIVEN ("the discovered service")
@@ -155,7 +158,7 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                         {
                             struct resolved_service_handler_parameters
                             {
-                                const resolved_service service {};
+                                const resolved_service service;
                                 const bool more_coming {};
                             };
 
@@ -174,8 +177,7 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                                 }
                             };
 
-                            discovered_service.resolve (resolved_service_handler,
-                                                        nullptr);
+                            discovered_service.resolve (resolved_service_handler);
 
                             auto resolved_service_handler_parameters_future {resolved_service_handler_promise.get_future()};
 
@@ -189,22 +191,22 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
 
                             THEN ("the service type contains the advertised service type")
                             {
-                                REQUIRE (resolved_service.name.find (service_to_advertise.type) != std::string::npos);
+                                REQUIRE (resolved_service.fullname.to_string().find (service_to_advertise.type.to_string()) != std::string::npos);
                             }
 
                             THEN ("the service domain contains the advertised service domain")
                             {
-                                REQUIRE (resolved_service.name.find (service_to_advertise.domain) != std::string::npos);
+                                REQUIRE (resolved_service.fullname.to_string().find (service_to_advertise.domain.to_string()) != std::string::npos);
                             }
 
                             THEN ("the service host name is not empty")
                             {
-                                REQUIRE (resolved_service.host.name.empty() == false);
+                                REQUIRE (resolved_service.host.name.to_string().empty() == false);
                             }
 
                             THEN ("the service port is a placeholder")
                             {
-                                REQUIRE (resolved_service.host.port == port::placeholder);
+                                REQUIRE (resolved_service.host.port == service_port::placeholder);
                             }
                         }
                     }

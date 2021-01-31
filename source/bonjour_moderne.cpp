@@ -101,6 +101,31 @@ std::string with_leading_underscore (const std::string& str)
 
 namespace bonjour_moderne
 {
+    namespace service
+    {
+        const hostname hostname::auto_resolve {""};
+        const port port::placeholder {0};
+        const domain domain::any {""};
+        const domain domain::local {"local"};
+        const interface interface::any {kDNSServiceInterfaceIndexAny};
+        const interface interface::local {kDNSServiceInterfaceIndexLocalOnly};
+        const interface interface::unicast {kDNSServiceInterfaceIndexUnicast};
+        const interface interface::p2p {kDNSServiceInterfaceIndexP2P};
+        const interface interface::ble {kDNSServiceInterfaceIndexBLE};
+
+        type::udp::udp (const std::string& indentifier)
+            : value {with_leading_underscore (indentifier) + "._udp"}
+        {
+
+        }
+
+        type::tcp::tcp (const std::string& indentifier)
+            : value {with_leading_underscore (indentifier) + "._tcp"}
+        {
+
+        }
+    };
+
     //==============================================================================
     // Advertise a service
     //==============================================================================
@@ -109,19 +134,17 @@ namespace bonjour_moderne
     {
     public:
         impl (const advertisable_service& service,
-              const advertised_service::handler service_handler,
-              const error_handler error_handler)
+              const advertised_service::handler service_handler)
             : service_handler {service_handler}
-            , error_handler {error_handler}
         {
             DNSServiceRegister (&shared_dns_service.get_ref(),
                                 kDNSServiceFlagsShareConnection,
-                                service.interface,
-                                service.name.empty() ? nullptr : service.name.c_str(),
-                                service.type.c_str(),
-                                service.domain.empty() ? nullptr : service.domain.c_str(),
-                                service.host.name.empty() ? nullptr : service.host.name.c_str(),
-                                service.host.port,
+                                service.interface.to_unint32(),
+                                service.name.is_empty() ? nullptr : service.name.to_c_str(),
+                                service.type.to_c_str(),
+                                service.domain.is_empty() ? nullptr : service.domain.to_c_str(),
+                                service.host.name.is_empty() ? nullptr : service.host.name.to_c_str(),
+                                service.host.port.to_uint16(),
                                 service.txt_record.size(),
                                 service.txt_record.data(),
                                 &dns_service_register_reply,
@@ -141,28 +164,29 @@ namespace bonjour_moderne
             {
                 if (errorCode == kDNSServiceErr_NoError)
                 {
-                    pimpl->service_handler ({name, regtype, domain},
-                                            flags & kDNSServiceFlagsAdd);
+                    pimpl->service_handler ({
+                        service_name {name},
+                        service_type {regtype},
+                        service_domain {domain}
+                    }, flags & kDNSServiceFlagsAdd);
                 }
             }
         }
 
         const advertised_service::handler service_handler;
-        const error_handler error_handler;
         shared_dns_service shared_dns_service;
     };
 
     service_advertiser::service_advertiser (const advertisable_service& service,
-                                            const advertised_service::handler service_handler,
-                                            const error_handler error_handler)
-        : pimpl {std::make_unique<impl> (service, service_handler, error_handler)}
+                                            const advertised_service::handler service_handler)
+        : pimpl {std::make_unique<impl> (service, service_handler)}
     {
     }
 
     service_advertiser::~service_advertiser() = default;
 
     //==============================================================================
-    class txt_record::impl
+    class service::txt_record::impl
     {
     public:
         impl()
@@ -251,62 +275,62 @@ namespace bonjour_moderne
         TXTRecordRef txt_record_ref {};
     };
 
-    txt_record::txt_record()
+    service::txt_record::txt_record()
         : pimpl {std::make_unique<impl>()}
     {
     }
 
-    txt_record::txt_record (const txt_record& other)
+    service::txt_record::txt_record (const txt_record& other)
         : pimpl {std::make_unique<impl> (*other.pimpl)}
     {
     }
 
-    txt_record::txt_record (const std::unordered_map<std::string, std::string>& values)
+    service::txt_record::txt_record (const std::unordered_map<std::string, std::string>& values)
         : txt_record()
     {
         for (const auto& value : values)
             set_value (value.first, value.second);
     }
 
-    txt_record::txt_record (const void* data, uint16_t size)
+    service::txt_record::txt_record (const void* data, uint16_t size)
         : pimpl {std::make_unique<impl> (data, size)}
     {
     }
 
-    txt_record::~txt_record() = default;
+    service::txt_record::~txt_record() = default;
 
-    const void* txt_record::data() const
+    const void* service::txt_record::data() const
     {
         return pimpl->data();
     }
 
-    uint16_t txt_record::size() const
+    uint16_t service::txt_record::size() const
     {
         return pimpl->size();
     }
 
-    bool txt_record::has_value (const std::string& key) const
+    bool service::txt_record::has_value (const std::string& key) const
     {
         return pimpl->has_value (key);
     }
 
-    std::string txt_record::get_value (const std::string& key) const
+    std::string service::txt_record::get_value (const std::string& key) const
     {
         return pimpl->get_value (key);
     }
 
-    size_t txt_record::num_values() const
+    size_t service::txt_record::num_values() const
     {
         return pimpl->num_values();
     }
 
-    void txt_record::set_value (const std::string& key,
+    void service::txt_record::set_value (const std::string& key,
                                 const std::string& value)
     {
         pimpl->set_value (key, value);
     }
 
-    void txt_record::remove_value (const std::string& key)
+    void service::txt_record::remove_value (const std::string& key)
     {
         pimpl->remove_value (key);
     }
@@ -319,16 +343,14 @@ namespace bonjour_moderne
     {
     public:
         impl (const discoverable_service& service,
-              const discovered_service::handler service_handler,
-              const error_handler error_handler)
+              const discovered_service::handler service_handler)
             : service_handler {service_handler}
-            , error_handler {error_handler}
         {
             DNSServiceBrowse (&shared_dns_service.get_ref(),
                               kDNSServiceFlagsShareConnection,
-                              service.interface,
-                              service.type.c_str(),
-                              service.domain.empty() ? nullptr : service.domain.c_str(),
+                              service.interface.to_unint32(),
+                              service.type.to_c_str(),
+                              service.domain.is_empty() ? nullptr : service.domain.to_c_str(),
                               &dns_service_browse_reply,
                               this);
         }
@@ -347,7 +369,10 @@ namespace bonjour_moderne
             {
                 if (errorCode == kDNSServiceErr_NoError)
                 {
-                    pimpl->service_handler ({serviceName, regtype, replyDomain, interfaceIndex},
+                    pimpl->service_handler ({service_name {serviceName},
+                                             service_type {regtype},
+                                             service_domain {replyDomain},
+                                             service_interface {interfaceIndex}},
                                             flags & kDNSServiceFlagsAdd,
                                             flags & kDNSServiceFlagsMoreComing);
                 }
@@ -355,14 +380,12 @@ namespace bonjour_moderne
         }
 
         const discovered_service::handler service_handler;
-        const error_handler error_handler;
         shared_dns_service shared_dns_service;
     };
 
     service_browser::service_browser (const discoverable_service& service,
-                                      const discovered_service::handler service_handler,
-                                      const error_handler error_handler)
-        : pimpl {std::make_unique<impl> (service, service_handler, error_handler)}
+                                      const discovered_service::handler service_handler)
+        : pimpl {std::make_unique<impl> (service, service_handler)}
     {
     }
 
@@ -376,17 +399,15 @@ namespace bonjour_moderne
     {
     public:
         impl (const discovered_service& service,
-              const resolved_service::handler service_handler,
-              const error_handler error_handler)
+              const resolved_service::handler service_handler)
             : service_handler {service_handler}
-            , error_handler {error_handler}
         {
             DNSServiceResolve (&shared_dns_service.get_ref(),
                                kDNSServiceFlagsShareConnection,
-                               service.interface,
-                               service.name.c_str(),
-                               service.type.c_str(),
-                               service.domain.c_str(),
+                               service.interface.to_unint32(),
+                               service.name.to_c_str(),
+                               service.type.to_c_str(),
+                               service.domain.to_c_str(),
                                &dns_service_resolve_reply,
                                this);
         }
@@ -407,21 +428,23 @@ namespace bonjour_moderne
             {
                 if (errorCode == kDNSServiceErr_NoError)
                 {
-                    pimpl->service_handler ({fullname, {hosttarget, port}, {txtRecord, txtLen}},
-                                            flags & kDNSServiceFlagsMoreComing);
+                    pimpl->service_handler ({
+                        service_fullname {fullname},
+                        service_host {service_hostname {hosttarget}, service_port {port}},
+                        service_txt_record {txtRecord, txtLen}
+                    }, flags & kDNSServiceFlagsMoreComing);
                 }
             }
         }
 
         const resolved_service::handler service_handler;
-        const error_handler error_handler;
         shared_dns_service shared_dns_service;
     };
 
-    discovered_service::discovered_service (const std::string& name,
-                                            const std::string& type,
-                                            const std::string& domain,
-                                            const uint32_t interface)
+    discovered_service::discovered_service (const service_name& name,
+                                            const service_type& type,
+                                            const service_domain& domain,
+                                            const service_interface& interface)
         : name {name}
         , type {type}
         , domain {domain}
@@ -439,21 +462,10 @@ namespace bonjour_moderne
 
     discovered_service::~discovered_service() = default;
 
-    void discovered_service::resolve (const resolved_service::handler service_handler,
-                                      const error_handler error_handler)
+    void discovered_service::resolve (const resolved_service::handler service_handler)
     {
-        pimpl = std::make_unique<impl> (*this, service_handler, error_handler);
+        pimpl = std::make_unique<impl> (*this, service_handler);
     }
-
-    //==============================================================================
-    namespace interface
-    {
-        constexpr uint32_t any {kDNSServiceInterfaceIndexAny};
-        constexpr uint32_t local {kDNSServiceInterfaceIndexLocalOnly};
-        constexpr uint32_t unicast {kDNSServiceInterfaceIndexUnicast};
-        constexpr uint32_t p2p {kDNSServiceInterfaceIndexP2P};
-        constexpr uint32_t ble {kDNSServiceInterfaceIndexBLE};
-    } // namespace interface
 
     //==========================================================================
     std::string tcp_service_type (const std::string& identifier)
