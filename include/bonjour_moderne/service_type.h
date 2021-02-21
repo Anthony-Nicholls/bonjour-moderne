@@ -23,7 +23,7 @@ namespace bonjour_moderne
         const char* to_c_str() const noexcept;
 
     private:
-        const std::string str;
+        std::string str;
     };
 
     bool operator== (const service_type& lhs, const service_type& rhs);

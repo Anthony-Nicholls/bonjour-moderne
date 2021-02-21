@@ -13,12 +13,12 @@ namespace bonjour_moderne
 {
     struct advertisable_service
     {
-        const service_name name;
-        const service_type type;
-        const service_protocol protocol;
-        const service_host host;
-        const service_domain domain {service_domain::any};
-        const service_interface interface {service_interface::any};
-        const service_txt_record txt_record {};
+        service_name name;
+        service_type type;
+        service_protocol protocol;
+        service_host host;
+        service_domain domain {service_domain::any};
+        service_interface interface {service_interface::any};
+        service_txt_record txt_record {};
     };
 } // namespace bonjour_moderne

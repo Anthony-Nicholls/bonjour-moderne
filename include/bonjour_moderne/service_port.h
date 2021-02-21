@@ -15,7 +15,7 @@ namespace bonjour_moderne
         uint16_t to_uint16() const noexcept;
 
     private:
-        const uint16_t index;
+        uint16_t index;
     };
 
     bool operator== (const service_port& lhs, const service_port& rhs) noexcept;

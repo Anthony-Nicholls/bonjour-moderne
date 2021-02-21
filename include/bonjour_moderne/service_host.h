@@ -14,8 +14,8 @@ namespace bonjour_moderne
 
         service_host (const service_port& port) noexcept;
 
-        const service_hostname name {service_hostname::auto_resolve};
-        const service_port port;
+        service_hostname name {service_hostname::auto_resolve};
+        service_port port;
     };
 
     bool operator== (const service_host& lhs, const service_host& rhs) noexcept;

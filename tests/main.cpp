@@ -22,8 +22,8 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
 
         struct advertised_service_handler_parameters
         {
-            const advertised_service service;
-            const bool was_added {};
+            advertised_service service;
+            bool was_added {};
         };
 
         std::promise<advertised_service_handler_parameters> advertised_service_handler_promise {};
@@ -52,14 +52,14 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                 REQUIRE (advertised_service_handler_parameters_future.wait_for (1s) == std::future_status::ready);
             }
 
-            auto advertised_service_handler_parameters {advertised_service_handler_parameters_future.get()};
+            const auto advertised_service_handler_parameters {advertised_service_handler_parameters_future.get()};
 
             THEN ("the was_added parameter in the handler is true")
             {
                 REQUIRE (advertised_service_handler_parameters.was_added == true);
             }
 
-            const auto advertised_service = advertised_service_handler_parameters.service;
+            const auto advertised_service {advertised_service_handler_parameters.service};
 
             THEN ("the advertised name exactly matches")
             {
@@ -86,9 +86,9 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
 
                 struct discovered_service_handler_parameters
                 {
-                    const discovered_service service;
-                    const bool was_added {};
-                    const bool more_coming {};
+                    discovered_service service;
+                    bool was_added {};
+                    bool more_coming {};
                 };
 
                 std::promise<discovered_service_handler_parameters> discovered_service_handler_promise {};
@@ -119,14 +119,14 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                         REQUIRE (discovered_service_handler_parameters_future.wait_for (1s) == std::future_status::ready);
                     }
 
-                    auto discovered_service_handler_parameters {discovered_service_handler_parameters_future.get()};
+                    const auto discovered_service_handler_parameters {discovered_service_handler_parameters_future.get()};
 
                     THEN ("the was_added parameter in the handler is true")
                     {
                         REQUIRE (discovered_service_handler_parameters.was_added == true);
                     }
 
-                    auto discovered_service = discovered_service_handler_parameters.service;
+                    const auto discovered_service {discovered_service_handler_parameters.service};
 
                     THEN ("the service name exactly matches")
                     {
@@ -149,8 +149,8 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                         {
                             struct resolved_service_handler_parameters
                             {
-                                const resolved_service service;
-                                const bool more_coming {};
+                                resolved_service service;
+                                bool more_coming {};
                             };
 
                             std::promise<resolved_service_handler_parameters> resolved_service_handler_promise {};
@@ -178,8 +178,8 @@ SCENARIO ("advertise, discover, and resolve a service", "[bonjour-moderne]")
                                 REQUIRE (resolved_service_handler_parameters_future.wait_for (1s) == std::future_status::ready);
                             }
 
-                            auto resolved_service_handler_parameters {resolved_service_handler_parameters_future.get()};
-                            const auto resolved_service = resolved_service_handler_parameters.service;
+                            const auto resolved_service_handler_parameters {resolved_service_handler_parameters_future.get()};
+                            const auto resolved_service {resolved_service_handler_parameters.service};
 
                             THEN ("the fullname of the service contains the name, type, and domain from the advertised service")
                             {

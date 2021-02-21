@@ -9,10 +9,11 @@ namespace bonjour_moderne
     {
     public:
         explicit service_fullname (const std::string& fullname) noexcept;
+        
         std::string to_string() const noexcept;
 
     private:
-        const std::string str;
+        std::string str;
     };
 
     bool operator== (const service_fullname& lhs, const service_fullname& rhs) noexcept;

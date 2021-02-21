@@ -20,7 +20,7 @@ namespace bonjour_moderne
         const char* to_c_str() const noexcept;
 
     private:
-        const std::string str;
+        std::string str;
     };
 
     bool operator== (const service_protocol& lhs, const service_protocol& rhs) noexcept;
