@@ -10,7 +10,7 @@ namespace bonjour_moderne
     const service_domain service_domain::local {"local."};
 
     service_domain::service_domain (const std::string& domain) noexcept
-        : str {domain.empty() ? domain : string {domain}.with_ending (".")}
+        : str {string {domain}.with_ending (".")}
     {
     }
 
