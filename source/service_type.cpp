@@ -7,10 +7,8 @@ namespace bonjour_moderne
 {
     service_type::service_type (const std::string& type_name) noexcept
         : str {string {type_name}
-                   .with_allowed_characters ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
-                   .with_maximum_length (15)
-                   .with_begining ("_")
-                   .with_ending (".")}
+                .with_begining ("_")
+                .with_ending (".")}
     {
     }
 
