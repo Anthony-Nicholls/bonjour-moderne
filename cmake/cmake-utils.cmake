@@ -10,7 +10,7 @@ function(target_enable_recommended_warnings target)
     endif()
 endfunction()
 
-function(target_enable_treat_warnings_as_errors target)
+function(target_enable_warnings_as_errors target)
     if(MSVC)
         target_compile_options(${target} PRIVATE /WX)
     else()

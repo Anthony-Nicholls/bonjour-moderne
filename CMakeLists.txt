@@ -63,7 +63,7 @@ PRIVATE
 target_include_directories(bonjour-moderne PUBLIC include)
 target_compile_features(bonjour-moderne PUBLIC cxx_std_17)
 target_enable_recommended_warnings(bonjour-moderne)
-target_enable_treat_warnings_as_errors(bonjour-moderne)
+target_enable_warnings_as_errors(bonjour-moderne)
 target_clangformat_setup(bonjour-moderne)
 
 
@@ -86,5 +86,5 @@ PRIVATE
 )
 
 target_enable_recommended_warnings(bonjour-moderne-tests)
-target_enable_treat_warnings_as_errors(bonjour-moderne-tests)
+target_enable_warnings_as_errors(bonjour-moderne-tests)
 target_clangformat_setup(bonjour-moderne-tests)
