@@ -66,6 +66,26 @@ target_enable_recommended_warnings(bonjour-moderne)
 target_enable_warnings_as_errors(bonjour-moderne)
 target_clangformat_setup(bonjour-moderne)
 
+#===============================================================================
+# example target
+#===============================================================================
+
+add_executable(bonjour-moderne-example)
+
+target_sources(bonjour-moderne-example
+PRIVATE
+    example/main.cpp
+)
+
+target_link_libraries(bonjour-moderne-example
+PRIVATE
+    bonjour-moderne
+)
+
+target_enable_recommended_warnings(bonjour-moderne-example)
+target_enable_warnings_as_errors(bonjour-moderne-example)
+target_clangformat_setup(bonjour-moderne-example)
+
 
 #===============================================================================
 # test target
