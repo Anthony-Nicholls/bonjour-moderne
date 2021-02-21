@@ -14,9 +14,9 @@ namespace bonjour_moderne
     {
     }
 
-    bool service_domain::is_empty() const noexcept
+    bool service_domain::is_any() const noexcept
     {
-        return str.empty();
+        return str.empty() || str == ".";
     }
 
     std::string service_domain::to_string() const noexcept

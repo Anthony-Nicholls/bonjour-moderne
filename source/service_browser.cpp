@@ -17,7 +17,7 @@ public:
                           kDNSServiceFlagsShareConnection,
                           service.interface.to_unint32(),
                           service_type_string.c_str(),
-                          service.domain.is_empty() ? nullptr : service.domain.to_c_str(),
+                          service.domain.is_any() ? nullptr : service.domain.to_c_str(),
                           &dns_service_browse_reply,
                           this);
     }

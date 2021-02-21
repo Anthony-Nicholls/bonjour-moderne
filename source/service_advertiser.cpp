@@ -18,7 +18,7 @@ public:
                             service.interface.to_unint32(),
                             service.name.is_empty() ? nullptr : service.name.to_c_str(),
                             service_type_string.c_str(),
-                            service.domain.is_empty() ? nullptr : service.domain.to_c_str(),
+                            service.domain.is_any() ? nullptr : service.domain.to_c_str(),
                             service.host.name.is_empty() ? nullptr : service.host.name.to_c_str(),
                             service.host.port.to_uint16(),
                             service.txt_record.size(),

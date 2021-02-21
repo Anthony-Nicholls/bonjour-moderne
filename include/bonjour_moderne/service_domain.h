@@ -13,7 +13,7 @@ namespace bonjour_moderne
 
         explicit service_domain (const std::string& domain) noexcept;
 
-        bool is_empty() const noexcept;
+        bool is_any() const noexcept;
         std::string to_string() const noexcept;
         const char* to_c_str() const noexcept;
 
